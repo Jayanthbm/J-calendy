@@ -33,10 +33,11 @@ router.post("/signup", async (req, res) => {
         const EmailCheck = `SELECT * from users where emailId='${emailId}'`;
         let EmailCheckResults = await db.query(EmailCheck);
         if (EmailCheckResults.results.length < 1) {
-            //Insert to Users table
+            //hashing the passsword using bcrypt
             bcrypt.hash(password, 12, async (err, hash) => {
                 if (hash) {
                     let hashpass = hash;
+                    //Insert to Users table
                     const UserInsert = `INSERT INTO users (name,emailId,password,dateCreated) VALUES('${name}','${emailId}','${hashpass}','${ConvertDate(new Date())}')`;
                     try {
                         let UserInsertResults = await db.query(UserInsert);

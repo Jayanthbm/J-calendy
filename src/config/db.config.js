@@ -1,6 +1,6 @@
 module.exports = {
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "jcalendy"
+    host: "remotemysql.com",
+    user: "Vvw3yGgqPY",
+    password: "8O9rOvhSbg",
+    database: "Vvw3yGgqPY"
 };
