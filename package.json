@@ -2,7 +2,7 @@
   "name": "j-calendy",
   "version": "1.0.0",
   "engines": {
-    "node": "13.11.0"
+    "node": "13.x"
   },
   "description": "",
   "main": "index.js",
