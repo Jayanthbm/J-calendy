@@ -76,4 +76,43 @@ router.post("/signup", async (req, res) => {
 
 })
 
+//Login Route
+
+router.post("/login", async (req, res) => {
+    try {
+        let emailId = req.body.emailId.trim();
+        let password = req.body.password.trim();
+        if (emailId && password) {
+            //Query to check user exists
+            const UserQuery = `SELECT userId,emailId,password from users where emailId='${emailId}'`;
+            let UserQueryResults = await db.query(UserQuery);
+            if (UserQueryResults.results.length > 0) {
+                let userId = UserQueryResults.results[0].userId;
+                let hashpass = UserQueryResults.results[0].password;
+                bcrypt.compare(password, hashpass, async (err, result) => {
+                    if (result === true) {
+                        let token = await create_token(userId, '3h');
+                        res.send({
+                            token
+                        })
+                    } else {
+                        res.send({
+                            message: "Invalid Credentials"
+                        })
+                    }
+                })
+            } else {
+
+            }
+        } else {
+            res.send({
+                message: "Invalid Credentials"
+            })
+        }
+    } catch (error) {
+        res.send({
+            message: error
+        })
+    }
+})
 module.exports = router;
