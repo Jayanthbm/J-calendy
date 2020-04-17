@@ -111,7 +111,7 @@ router.post("/login", async (req, res) => {
         }
     } catch (error) {
         res.send({
-            message: error
+            message: "Invalid Credentials"
         })
     }
 })
