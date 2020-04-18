@@ -281,7 +281,7 @@ router.get("/events", async (req, res) => {
     })
 })
 
-router.get("/events/:id", async (req, res) => {
+router.post("/events/:id", async (req, res) => {
     let userId = req.params.id;
     let eventDate = req.body.date || new Date().toISOString().split('T')[0];
     let curDate = new Date().toISOString().split('T')[0];

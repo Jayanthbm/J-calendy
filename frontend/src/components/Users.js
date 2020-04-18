@@ -4,15 +4,18 @@ import * as EP from '../helpers/endpoints';
 import * as Cookie from '../helpers/cookie';
 import Spinner from './Spinner';
 import Top from './Top';
-import Member from './Member';
-
+import { Redirect, Link, useParams } from "react-router-dom";
 import {
     Container
 } from "shards-react";
-const Home = props => {
+
+const Users = props => {
+    let { id } = useParams();
     const [loggedin, setLoggedin] = useState(null);
-    const [users, setUsers] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+    const [slots, setSlots] = useState(null)
+    const [errorm, setErrorm] = useState('');
     useEffect(() => {
         async function tokenchecker() {
             const token = Cookie.getCookie("token");
@@ -22,18 +25,24 @@ const Home = props => {
                 setLoggedin(false);
             }
         }
-        async function getlist() {
-            let res = await axios.get(EP.LIST);
-            if (res) {
-                setUsers(res.data.users)
+        async function getslots() {
+            const bodyparameters = {
+                date: '2020-02-01'
+            }
+            let res = await axios.get(`${EP.LIST}/${id}`, bodyparameters)
+            if (res.data.messsage) {
+                setErrorm(res.data.messsage)
+            } else {
+                setSlots(res.data.availableSlots)
             }
         }
         setLoading(true);
         tokenchecker();
-        getlist();
+        getslots();
         setLoading(false);
     }, []);
-    if (users === null || loading === true) {
+
+    if (loading === true) {
         return (<Spinner loading="true" />);
     } else {
         return (
@@ -41,17 +50,12 @@ const Home = props => {
                 <Container className="dr-example-container">
                     <Top loggedin={loggedin} />
                     <br />
-                    <h3 style={{ textAlign: 'center', color: '#312eff' }}> List of Users</h3>
-                    {users &&
-                        users.map((el, i) => {
-                            return (<Member name={el.name} user={el.userId} />);
-                        })
+                    {errorm &&
+                        <h3>{errorm}</h3>
                     }
                 </Container>
             </React.Fragment >
         )
     }
-
 }
-
-export default Home;
+export default Users;
