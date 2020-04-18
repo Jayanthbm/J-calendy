@@ -14,9 +14,21 @@ async function create_token(id, expiresIn) {
     });
     return token;
 }
-function ConvertDate(date) {
-    return date.toISOString().split('T')[0] + ' '
-        + date.toTimeString().split(' ')[0];
+function toISOLocal(d) {
+    var z = n => ('0' + n).slice(-2);
+    var zz = n => ('00' + n).slice(-3);
+    var off = d.getTimezoneOffset();
+    var sign = off < 0 ? '+' : '-';
+    off = Math.abs(off);
+
+    return d.getFullYear() + '-'
+        + z(d.getMonth() + 1) + '-' +
+        z(d.getDate()) + 'T' +
+        z(d.getHours()) + ':' +
+        z(d.getMinutes()) + ':' +
+        z(d.getSeconds()) + '.' +
+        zz(d.getMilliseconds()) +
+        sign + z(off / 60 | 0) + ':' + z(off % 60);
 }
 
 //Signup Route
@@ -35,7 +47,7 @@ router.post("/signup", async (req, res) => {
                     if (hash) {
                         let hashpass = hash;
                         //Insert to Users table
-                        const UserInsert = `INSERT INTO users (name,emailId,password,dateCreated) VALUES('${name}','${emailId}','${hashpass}','${ConvertDate(new Date())}')`;
+                        const UserInsert = `INSERT INTO users (name,emailId,password,dateCreated) VALUES('${name}','${emailId}','${hashpass}','${toISOLocal(new Date()).split('T')[0]}')`;
                         try {
                             let UserInsertResults = await db.query(UserInsert);
                             let userId = UserInsertResults.results.insertId
@@ -214,9 +226,8 @@ router.post("/schedule", auth, async (req, res) => {
         }
     }
     let userId = req.userId;
-    // let eventDate = new Date().toISOString().split('T')[0];
     let eventDate = req.body.date;
-    let curDate = new Date().toISOString().split('T')[0];
+    let curDate = toISOLocal(new Date()).split('T')[0]
     var x = new Date(eventDate);
     var y = new Date(curDate);
     if (x < y) {
@@ -273,7 +284,7 @@ router.post("/schedule", auth, async (req, res) => {
 router.get("/events", async (req, res) => {
     const EventsQuery = ` SELECT events.userId,users.name 
                 FROM events,users
-                WHERE events.eventDate >= '${new Date().toISOString().split('T')[0]}' AND events.userId = users.userId
+                WHERE events.eventDate >= '${toISOLocal(new Date()).split('T')[0]}' AND events.userId = users.userId
                 GROUP BY events.userId`
     let EventsQueryR = await db.query(EventsQuery);
     res.send({
@@ -283,7 +294,7 @@ router.get("/events", async (req, res) => {
 
 router.post("/events/:id", async (req, res) => {
     let userId = req.params.id;
-    let eventDate = req.body.date || new Date().toISOString().split('T')[0];
+    let eventDate = req.body.date || toISOLocal(new Date()).split('T')[0];
     let curDate = new Date().toISOString().split('T')[0];
     var x = new Date(eventDate);
     var y = new Date(curDate);
@@ -319,7 +330,7 @@ router.post("/book/:id", async (req, res) => {
     let userId = req.params.id;
     let eventDate = req.body.eventDate;
     let selectedSlots = req.body.selectedSlots;
-    let curDate = new Date().toISOString().split('T')[0];
+    let curDate = toISOLocal(new Date()).split('T')[0]
     let name = req.body.name;
     let email = req.body.email;
     let mobile = req.body.mobile;

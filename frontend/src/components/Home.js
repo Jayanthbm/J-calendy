@@ -41,7 +41,7 @@ const Home = props => {
                 <Container className="dr-example-container">
                     <Top loggedin={loggedin} />
                     <br />
-                    <h3 style={{ textAlign: 'center', color: '#312eff' }}> List of Users</h3>
+                    <h3 style={{ textAlign: 'center', color: '#312eff' }}> Select Any User to Book a Slot</h3>
                     {users &&
                         users.map((el, i) => {
                             return (<Member name={el.name} user={el.userId} />);

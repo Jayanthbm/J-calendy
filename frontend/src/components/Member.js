@@ -4,7 +4,7 @@ const Member = props => {
     return (
         <React.Fragment>
             <br />
-            <Link style={{ color: '#312eff', textDecoration: 'none' }} to={`/users/${props.user}`}>
+            <Link id={props.user} style={{ color: '#312eff', textDecoration: 'none' }} to={`/users/${props.user}`}>
                 <div style={{
                     backgroundColor: '#fff',
                     cursor: 'pointer',
