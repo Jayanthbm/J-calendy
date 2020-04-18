@@ -1,26 +1,33 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 
-function App() {
+import Bookings from './components/Bookings';
+import Home from './components/Home';
+import Login from './components/Login';
+import Schedule from './components/Schedule';
+import Signup from './components/Signup';
+
+const NoMatchPage = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <h3>404 - Not found</h3>
   );
+};
+
+const App = props => {
+  return (
+    <React.Fragment>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/" exact component={Home} />
+          <Route path="/login" exact component={Login} />
+          <Route path="/signup" exact component={Signup} />
+          <Route path="/schedules" exact component={Schedule} />
+          <Route path="/booking" exact component={Bookings} />
+          <Route component={NoMatchPage} />
+        </Switch>
+      </BrowserRouter>
+    </React.Fragment>
+  )
 }
 
 export default App;
