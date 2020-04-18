@@ -221,8 +221,10 @@ router.post("/schedule", auth, async (req, res) => {
     let userId = req.userId;
     // let eventDate = new Date().toISOString().split('T')[0];
     let eventDate = req.body.date;
-    //Check date wheather its smaller than todays date
-    if (new Date(eventDate).getTime() <= new Date().getTime()) {
+    let curDate = new Date().toISOString().split('T')[0];
+    var x = new Date(eventDate);
+    var y = new Date(curDate);
+    if (x < y) {
         res.send({
             message: "You cannot schedule Events for previous Dates"
         })
@@ -287,43 +289,121 @@ router.get("/events", async (req, res) => {
 router.get("/events/:id", async (req, res) => {
     let userId = req.params.id;
     let eventDate = req.body.date || new Date().toISOString().split('T')[0];
-    const eventQuery = `SELECT availableSlots
+    let curDate = new Date().toISOString().split('T')[0];
+    var x = new Date(eventDate);
+    var y = new Date(curDate);
+    if (x < y) {
+        res.send({
+            message: "Date Should be Greater or Equal to todays Date"
+        })
+    } else {
+        try {
+            const eventQuery = `SELECT availableSlots
                         FROM events
                         WHERE userId =${userId} AND  eventDate ='${eventDate}'`;
-    let EventsQueryR = await db.query(eventQuery);
-    let Slots = JSON.parse(EventsQueryR.results[0].availableSlots)
-    var availableSlots = {};
-    for (let [key, value] of Object.entries(Slots)) {
-        if (value.available === true) {
-            availableSlots[key] = value;
+            let EventsQueryR = await db.query(eventQuery);
+            let Slots = JSON.parse(EventsQueryR.results[0].availableSlots)
+            var availableSlots = {};
+            for (let [key, value] of Object.entries(Slots)) {
+                if (value.available === true) {
+                    availableSlots[key] = value;
+                }
+            }
+            res.send({
+                availableSlots
+            })
+        } catch (error) {
+            res.send({
+                message: "No Slots Found",
+            })
         }
     }
-
-    res.send({
-        availableSlots
-    })
 })
 
-router.get("/book/:id", async (req, res) => {
+router.post("/book/:id", async (req, res) => {
     let userId = req.params.id;
     let eventDate = req.body.eventDate;
     let selectedSlots = req.body.selectedSlots;
-    console.log(`${userId}-${eventDate}-${selectedSlots}`)
+    let curDate = new Date().toISOString().split('T')[0];
+    let name = req.body.name;
+    let email = req.body.email;
+    let mobile = req.body.mobile;
     if (userId && eventDate && selectedSlots) {
-        if (new Date(eventDate).getTime() <= new Date().getTime()) {
+        var x = new Date(eventDate);
+        var y = new Date(curDate);
+        if (x < y) {
             res.send({
-                message: "You cannot Book Events for previous Dates"
+                message: "You cannot Book Slots for previous Dates"
             })
         } else {
-            //TODO Create Booking Table and Update Events Table
-            res.send({
-                message: "OK"
-            })
-        }
+            try {
+                const getSlots = `SELECT availableSlots from events WHERE userId = ${userId} AND eventDate ='${eventDate}'`;
+                let getSlotsR = await db.query(getSlots);
+                if (getSlotsR.results.length > 0) {
+                    let availableSlots = JSON.parse(getSlotsR.results[0].availableSlots);
+                    for (let [key, value] of Object.entries(selectedSlots)) {
+                        if (availableSlots[key].available === true && availableSlots[key].booked === false) {
+                            const AddBooking = `INSERT INTO  bookings (userId,bookEventDate,name,email,mobile,bookedSlot,bookedOn)VALUES(${userId},'${eventDate}','${name}','${email}','${mobile}',${key},'${new Date(curDate)}')`;
+                            let AddBookingR = await db.query(AddBooking);
+                            if (AddBookingR.results.insertId > 0) {
+                                let updatedSlots = { ...availableSlots };
+                                updatedSlots[key] = value;
+                                const UpdateEvent = `UPDATE events set availableSlots='${JSON.stringify(updatedSlots)}' WHERE userId= ${userId} AND eventDate='${eventDate}'`;
+                                let UpdateEventResults = await db.query(UpdateEvent);
+                                if (UpdateEventResults.results.insertId === 0 && UpdateEventResults.results.affectedRows === 1) {
+                                    res.send({
+                                        message: "Slots Booked "
+                                    })
+                                } else {
+                                    res.send({
+                                        message: "Error During Booking"
+                                    })
+                                }
 
+                            } else {
+                                res.send({
+                                    message: "Error During Booking"
+                                })
+                            }
+
+                        } else {
+                            res.send({
+                                message: "No Slots Available for Booking",
+                            })
+                        }
+                    }
+
+                } else {
+                    res.send({
+                        message: "No Slots Available for Booking"
+                    })
+                }
+            } catch (e) {
+                console.log(e)
+                res.send({
+                    message: "Error During Booking",
+                })
+            }
+
+        }
     } else {
         res.send({
-            message: "Error While Booking"
+            message: "Error During Booking"
+        })
+    }
+
+})
+
+router.get("/bookings", async (req, res) => {
+    try {
+        const bookings = "SELECT * from bookings";
+        let bookingsR = await db.query(bookings);
+        res.send({
+            results: bookingsR.results
+        })
+    } catch (error) {
+        res.send({
+            results: "Error Fetching Bookings"
         })
     }
 
