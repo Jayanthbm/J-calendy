@@ -6,11 +6,6 @@ const bcrypt = require("bcryptjs");
 const constants = require('../helpers/constants');
 const auth = require('../middlewares/auth');
 
-router.get("/", async (req, res) => {
-    res.send({
-        message: "Hello world"
-    })
-})
 async function create_token(id, expiresIn) {
     const token = jwt.sign({
         userId: id
