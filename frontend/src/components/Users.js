@@ -77,7 +77,7 @@ const Users = props => {
         tokenchecker();
         getslots();
         setLoading(false);
-    }, [{ fslots: null, errorm: null, alert: {}, name: {}, mobile: {}, email: {}, selectedSlot: {} }]);
+    }, [{ fslots: {} }]);
     function time(time) {
         if (time == 0) {
             return `12 AM`
@@ -140,7 +140,6 @@ const Users = props => {
                             setLoading(true);
                             setDp(e);
                             setDate(toISOLocal(e).split('T')[0]);
-                            setFslots('');
                             setAlert('');
                             await getslots();
                             console.log(fslots)
