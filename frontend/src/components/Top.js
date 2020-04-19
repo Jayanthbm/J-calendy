@@ -24,6 +24,8 @@ const Top = props => {
                         &nbsp;
                         <Link to="/schedules"><Button theme="info" pill>Schedule Events</Button></Link>
                         &nbsp;
+                        <Link to="/booking"><Button theme="warning" pill>Bookings</Button></Link>
+                        &nbsp;
                         {props.loggedin === true && <Button theme="danger" pill onClick={() => {
                             try {
                                 Cookie.deleteCookie("token");

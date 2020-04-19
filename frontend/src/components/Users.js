@@ -79,11 +79,14 @@ const Users = props => {
         setLoading(false);
     }, []);
     function time(time) {
-        if (time < 12) {
-            return `${time} AM`
+        if (time == 0) {
+            return `12 AM`
         }
         if (time == 12) {
             return `${time} PM`
+        }
+        if (time < 12 && time > 0) {
+            return `${time} AM`
         }
         if (time > 12) {
             return `${time - 12} PM`
@@ -95,7 +98,7 @@ const Users = props => {
             let bodyParameters = {
                 eventDate: date,
                 selectedSlots: {
-                    [`"${selectedSlot}"`]: {
+                    [`${selectedSlot}`]: {
                         "available": false,
                         "booked": true
                     },
@@ -105,8 +108,6 @@ const Users = props => {
                 }
             }
             let res = await axios.post(`${EP.BOOK}/${id}`, bodyParameters);
-            console.log(bodyParameters)
-            console.log(res);
             if (res.data.message) {
                 setAlert(res.data.message);
             }
