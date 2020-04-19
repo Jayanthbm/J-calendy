@@ -78,6 +78,7 @@ const Users = props => {
         getslots();
         setLoading(false);
     }, [{ fslots: {} }]);
+
     function time(time) {
         if (time == 0) {
             return `12 AM`
@@ -92,7 +93,9 @@ const Users = props => {
             return `${time - 12} PM`
         }
     }
+
     async function book() {
+        setLoading(true);
         if (selectedSlot) {
             setLoading(true);
             let bodyParameters = {
@@ -101,21 +104,22 @@ const Users = props => {
                     [`${selectedSlot}`]: {
                         "available": false,
                         "booked": true
-                    },
-                    name,
-                    email,
-                    mobile
-                }
+                    }
+                },
+                name,
+                email,
+                mobile
             }
+            console.log(bodyParameters);
             let res = await axios.post(`${EP.BOOK}/${id}`, bodyParameters);
             if (res.data.message) {
                 setAlert(res.data.message);
             }
             setLoading(false);
-            setOpen(false)
-
+            setOpen(false);
         }
     }
+
     if (fslots) {
         for (let [key, value] of Object.entries(fslots)) {
             slots.push(key)
