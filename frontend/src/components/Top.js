@@ -25,8 +25,12 @@ const Top = props => {
                         <Link to="/schedules"><Button theme="info" pill>Schedule Events</Button></Link>
                         &nbsp;
                         {props.loggedin === true && <Button theme="danger" pill onClick={() => {
-                            Cookie.deleteCookie("token");
-                            setRedirect(true);
+                            try {
+                                Cookie.deleteCookie("token");
+                                setRedirect(true);
+                            } catch (error) {
+                                setRedirect(true);
+                            }
                         }}>Logout</Button>}
                     </Nav>
                 </Navbar>

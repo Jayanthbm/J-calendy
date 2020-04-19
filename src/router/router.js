@@ -316,6 +316,7 @@ router.post("/events/:id", async (req, res) => {
                 }
             }
             res.send({
+                eventDate,
                 availableSlots
             })
         } catch (error) {

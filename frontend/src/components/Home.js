@@ -44,7 +44,7 @@ const Home = props => {
                     <h3 style={{ textAlign: 'center', color: '#312eff' }}> Select Any User to Book a Slot</h3>
                     {users &&
                         users.map((el, i) => {
-                            return (<Member name={el.name} user={el.userId} />);
+                            return (<Member id={el.userId} name={el.name} user={el.userId} />);
                         })
                     }
                 </Container>

@@ -35,24 +35,19 @@ const Users = props => {
     const [loading, setLoading] = useState(false);
     const [date, setDate] = useState(toISOLocal(new Date()).split('T')[0]);
     const [dp, setDp] = useState(new Date());
-    const [fslots, setFslots] = useState('');
-    const [errorm, setErrorm] = useState('');
+    const [fslots, setFslots] = useState(null);
+    const [errorm, setErrorm] = useState(null);
 
     async function getslots() {
-        setLoading(true);
         //TODO Clear intial values
         const bodyparameters = {
             date
         }
         let res = await axios.post(`${EP.LIST}/${id}`, bodyparameters);
         if (res.data.availableSlots) {
-            setFslots('');
-            setErrorm('')
-            setFslots(res.data.availableSlots)
 
+            setFslots(res.data.availableSlots);
         } else {
-            setFslots('');
-            setErrorm('')
             setErrorm(res.data.message)
         }
         setLoading(false);
@@ -72,23 +67,13 @@ const Users = props => {
         getslots();
         setLoading(false);
     }, []);
-    async function update_slots(d) {
-        setFslots({})
-        setErrorm('');
-        slots.splice(0, slots.length)
-        setDp(d)
-        setDate(toISOLocal(d).split('T')[0]);
-        await getslots()
 
-    }
     if (fslots) {
         for (let [key, value] of Object.entries(fslots)) {
             slots.push(key)
         }
-
-
     }
-    if (loading === true || (fslots.length === 0 && errorm.length === 0)) {
+    if (loading === true || (fslots === null && errorm === null)) {
         return (<Spinner loading="true" />);
     } else {
         return (
@@ -101,12 +86,23 @@ const Users = props => {
                     )}
                     <DatePicker
                         selected={dp}
-                        onChange={async (e) => { await update_slots(e) }}
+                        onChange={async (e) => {
+                            slots.splice(0, slots.length);
+                            setErrorm('');
+                            setLoading(true);
+                            setDp(e);
+                            setDate(toISOLocal(e).split('T')[0]);
+                            setFslots('');
+                            console.log(fslots);
+                            await getslots();
+                            console.log(fslots);
+                            setLoading(false);
+                        }}
                     />
                     {!errorm && (
                         <h3>Available Slots</h3>
                     )}
-                    {slots.map((slot, index) => (
+                    {!errorm && slots.map((slot, index) => (
                         <div key={index}>
                             {slot}
                         </div>
