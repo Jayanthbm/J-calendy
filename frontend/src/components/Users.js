@@ -9,7 +9,7 @@ import DatePicker from "react-datepicker";
 import {
     Container,
     Button,
-    Modal, ModalBody, ModalHeader, Form,
+    Modal, ModalBody, ModalHeader,
     FormInput,
     FormGroup,
     InputGroup,
@@ -79,10 +79,10 @@ const Users = props => {
         setLoading(false);
     }, []);
     function time(time) {
-        if (time == 0) {
+        if (time === 0) {
             return `12 AM`
         }
-        if (time == 12) {
+        if (time === 12) {
             return `${time} PM`
         }
         if (time < 12 && time > 0) {

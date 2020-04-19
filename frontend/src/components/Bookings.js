@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Redirect, Link } from "react-router-dom";
 import axios from 'axios';
 import * as EP from '../helpers/endpoints';
 import * as Cookie from '../helpers/cookie';
 import Top from './Top';
 
 import {
-    Container, Button, Alert
+    Container
 } from "shards-react";
 
 import Spinner from './Spinner';
