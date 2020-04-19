@@ -7,7 +7,13 @@ import Top from './Top';
 import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import {
-    Container
+    Container,
+    Button,
+    Modal, ModalBody, ModalHeader, Form,
+    FormInput,
+    FormGroup,
+    InputGroup,
+    Alert
 } from "shards-react";
 
 const Users = props => {
@@ -37,7 +43,13 @@ const Users = props => {
     const [dp, setDp] = useState(new Date());
     const [fslots, setFslots] = useState(null);
     const [errorm, setErrorm] = useState(null);
-
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('')
+    const [email, setEmail] = useState('')
+    const [mobile, setMobile] = useState('');
+    const [selectedSlot, setSelectedSlot] = useState(null);
+    const [alert, setAlert] = useState('');
+    const [visible, setVisible] = useState(true);
     async function getslots() {
         //TODO Clear intial values
         const bodyparameters = {
@@ -45,7 +57,6 @@ const Users = props => {
         }
         let res = await axios.post(`${EP.LIST}/${id}`, bodyparameters);
         if (res.data.availableSlots) {
-
             setFslots(res.data.availableSlots);
         } else {
             setErrorm(res.data.message)
@@ -67,7 +78,43 @@ const Users = props => {
         getslots();
         setLoading(false);
     }, []);
+    function time(time) {
+        if (time < 12) {
+            return `${time} AM`
+        }
+        if (time == 12) {
+            return `${time} PM`
+        }
+        if (time > 12) {
+            return `${time - 12} PM`
+        }
+    }
+    async function book() {
+        if (selectedSlot) {
+            setLoading(true);
+            let bodyParameters = {
+                eventDate: date,
+                selectedSlots: {
+                    [`"${selectedSlot}"`]: {
+                        "available": false,
+                        "booked": true
+                    },
+                    name,
+                    email,
+                    mobile
+                }
+            }
+            let res = await axios.post(`${EP.BOOK}/${id}`, bodyParameters);
+            console.log(bodyParameters)
+            console.log(res);
+            if (res.data.message) {
+                setAlert(res.data.message);
+            }
+            setLoading(false);
+            setOpen(false)
 
+        }
+    }
     if (fslots) {
         for (let [key, value] of Object.entries(fslots)) {
             slots.push(key)
@@ -93,18 +140,70 @@ const Users = props => {
                             setDp(e);
                             setDate(toISOLocal(e).split('T')[0]);
                             setFslots('');
-                            console.log(fslots);
+                            setAlert('');
                             await getslots();
-                            console.log(fslots);
                             setLoading(false);
                         }}
                     />
+                    {alert &&
+                        <div style={{ textAlign: 'center', paddingLeft: '25%', paddingRight: '25%' }}><Alert dismissible={() => setVisible(false)} open={visible} theme="warning">{alert}</Alert></div>}
                     {!errorm && (
                         <h3>Available Slots</h3>
                     )}
                     {!errorm && slots.map((slot, index) => (
-                        <div key={index}>
-                            {slot}
+                        <div style={{
+                            display: 'inline-block'
+                        }} key={index}>
+                            <Button id={slot} outline onClick={(e) => { setOpen(true); setSelectedSlot(e.target.id) }}> {time(slot)} </Button>
+                            <span style={{
+                                paddingLeft: 4,
+                                paddingRight: 4
+                            }}>
+                            </span>
+                            <Modal open={open} toggle={() => { setOpen(!open) }}>
+                                <ModalHeader>Fill Details to Book a Slot</ModalHeader>
+                                <ModalBody>
+                                    <FormGroup>
+                                        <label htmlFor="name">Name</label>
+                                        <InputGroup seamless>
+                                            <FormInput
+                                                size="lg"
+                                                name="name"
+                                                placeholder="name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                            />
+                                        </InputGroup>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <label htmlFor="email">Email</label>
+                                        <InputGroup seamless>
+                                            <FormInput
+                                                size="lg"
+                                                name="email"
+                                                placeholder="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                            />
+                                        </InputGroup>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <label htmlFor="mobile">Mobile</label>
+                                        <InputGroup seamless>
+                                            <FormInput
+                                                size="lg"
+                                                name="mobile"
+                                                placeholder="mobile"
+                                                value={mobile}
+                                                onChange={(e) => setMobile(e.target.value)}
+                                            />
+                                        </InputGroup>
+                                    </FormGroup>
+                                    <FormGroup>
+                                        <Button pill block onClick={book}>Book</Button>
+                                    </FormGroup>
+                                </ModalBody>
+                            </Modal>
                         </div>
                     ))}
                 </Container>

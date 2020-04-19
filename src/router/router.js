@@ -350,7 +350,7 @@ router.post("/book/:id", async (req, res) => {
                     let availableSlots = JSON.parse(getSlotsR.results[0].availableSlots);
                     for (let [key, value] of Object.entries(selectedSlots)) {
                         if (availableSlots[key].available === true && availableSlots[key].booked === false) {
-                            const AddBooking = `INSERT INTO  bookings (userId,bookEventDate,name,email,mobile,bookedSlot,bookedOn)VALUES(${userId},'${eventDate}','${name}','${email}','${mobile}',${key},'${new Date(curDate)}')`;
+                            const AddBooking = `INSERT INTO  bookings (userId,bookEventDate,name,email,mobile,bookedSlot,bookedOn)VALUES(${userId},'${eventDate}','${name}','${email}','${mobile}',${key},'${curDate}')`;
                             let AddBookingR = await db.query(AddBooking);
                             if (AddBookingR.results.insertId > 0) {
                                 let updatedSlots = { ...availableSlots };
@@ -363,13 +363,13 @@ router.post("/book/:id", async (req, res) => {
                                     })
                                 } else {
                                     res.send({
-                                        message: "Error During Booking"
+                                        message: "Error During Booking",
                                     })
                                 }
 
                             } else {
                                 res.send({
-                                    message: "Error During Booking"
+                                    message: "Error During Booking",
                                 })
                             }
 
